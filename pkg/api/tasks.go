@@ -2,7 +2,7 @@ package api
 
 import (
 	"net/http"
-	"todo-scheduler/pkg/db"
+	"github.com/Serikkambarov/todo-scheduler/pkg/db"
 )
 
 type TasksResp struct {

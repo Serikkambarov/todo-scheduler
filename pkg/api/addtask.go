@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 	"time"
-	"todo-scheduler/pkg/db"
+	"github.com/Serikkambarov/todo-scheduler/pkg/db"
 	"encoding/json"
 	"net/http"
 	

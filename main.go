@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"todo-scheduler/pkg/api"
-	"todo-scheduler/pkg/db"
+	"github.com/Serikkambarov/todo-scheduler/pkg/api"
+	"github.com/Serikkambarov/todo-scheduler/pkg/db"
 )
 
 func main() {

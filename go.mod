@@ -1,4 +1,4 @@
-module todo-scheduler
+module github.com/Serikkambarov/todo-scheduler
 
 go 1.24.0
 
