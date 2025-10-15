@@ -5,7 +5,6 @@ import (
 	"fmt"
 )
 
-
 type Task struct {
 	ID      string `json:"id"`
 	Date    string `json:"date"`
@@ -13,7 +12,6 @@ type Task struct {
 	Comment string `json:"comment"`
 	Repeat  string `json:"repeat"`
 }
-
 
 func AddTask(task *Task) (int64, error) {
 	query := `INSERT INTO scheduler (date, title, comment, repeat) VALUES (?, ?, ?, ?)`
@@ -29,7 +27,7 @@ func Tasks(limit int) ([]*Task, error) {
 		fmt.Sprintf(`SELECT id, date, title, comment, repeat FROM scheduler ORDER BY date ASC LIMIT %d`, limit),
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ошибка выполнения SQL-запроса: %w", err)
 	}
 	defer rows.Close()
 
@@ -37,17 +35,22 @@ func Tasks(limit int) ([]*Task, error) {
 	for rows.Next() {
 		var t Task
 		if err := rows.Scan(&t.ID, &t.Date, &t.Title, &t.Comment, &t.Repeat); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("ошибка чтения строки: %w", err)
 		}
 		tasks = append(tasks, &t)
 	}
 
-	// Если задач нет, возвращаем пустой слайс, а не nil
+	// Проверяем, не возникла ли ошибка во время итерации по rows
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("ошибка при обработке результата запроса: %w", err)
+	}
+
+	// Если задач нет, возвращаем пустой слайс (не nil)
 	if tasks == nil {
 		tasks = []*Task{}
 	}
 
-	return tasks, rows.Err()
+	return tasks, nil
 }
 
 
@@ -60,7 +63,7 @@ func GetTask(id string) (*Task, error) {
 	).Scan(&t.ID, &t.Date, &t.Title, &t.Comment, &t.Repeat)
 
 	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("Задача не найдена")
+		return nil, fmt.Errorf("задача не найдена")
 	}
 	if err != nil {
 		return nil, err
@@ -85,33 +88,32 @@ func UpdateTask(task *Task) error {
 	return nil
 }
 
-
 func DeleteTask(id string) error {
-    res, err := DB.Exec(`DELETE FROM scheduler WHERE id=?`, id)
-    if err != nil {
-        return err
-    }
-    count, err := res.RowsAffected()
-    if err != nil {
-        return err
-    }
-    if count == 0 {
-        return fmt.Errorf("incorrect id for deleting task")
-    }
-    return nil
+	res, err := DB.Exec(`DELETE FROM scheduler WHERE id=?`, id)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return fmt.Errorf("incorrect id for deleting task")
+	}
+	return nil
 }
 
 func UpdateDate(next string, id string) error {
-    res, err := DB.Exec(`UPDATE scheduler SET date=? WHERE id=?`, next, id)
-    if err != nil {
-        return err
-    }
-    count, err := res.RowsAffected()
-    if err != nil {
-        return err
-    }
-    if count == 0 {
-        return fmt.Errorf("incorrect id for updating date")
-    }
-    return nil
+	res, err := DB.Exec(`UPDATE scheduler SET date=? WHERE id=?`, next, id)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return fmt.Errorf("incorrect id for updating date")
+	}
+	return nil
 }

@@ -1,11 +1,11 @@
 package db
 
 import (
-    "database/sql"
-    "fmt"
-    "os"
+	"database/sql"
+	"fmt"
+	"os"
 
-    _ "modernc.org/sqlite"
+	_ "modernc.org/sqlite"
 )
 
 var DB *sql.DB
@@ -23,24 +23,24 @@ CREATE INDEX idx_date ON scheduler(date);
 `
 
 func Init(dbFile string) error {
-    install := false
-    if _, err := os.Stat(dbFile); os.IsNotExist(err) {
-        install = true
-    }
+	install := false
+	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
+		install = true
+	}
 
-    db, err := sql.Open("sqlite", dbFile)
-    if err != nil {
-        return fmt.Errorf("cannot open DB: %v", err)
-    }
+	db, err := sql.Open("sqlite", dbFile)
+	if err != nil {
+		return fmt.Errorf("cannot open DB: %v", err)
+	}
 
-    if install {
-        _, err = db.Exec(schema)
-        if err != nil {
-            db.Close()
-            return fmt.Errorf("cannot create schema: %v", err)
-        }
-    }
+	if install {
+		_, err = db.Exec(schema)
+		if err != nil {
+			db.Close()
+			return fmt.Errorf("cannot create schema: %v", err)
+		}
+	}
 
-    DB = db
-    return nil
+	DB = db
+	return nil
 }

@@ -2,19 +2,22 @@ package api
 
 import (
 	"net/http"
+
 	"github.com/Serikkambarov/todo-scheduler/pkg/db"
 )
+
+const LIMIT = 50
 
 type TasksResp struct {
 	Tasks []*db.Task `json:"tasks"`
 }
 
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
-	tasks, err := db.Tasks(50)
+	tasks, err := db.Tasks(LIMIT)
 	if err != nil {
-		writeJson(w, map[string]string{"error": err.Error()})
+		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	writeJson(w, TasksResp{Tasks: tasks})
+	writeJson(w, http.StatusOK, TasksResp{Tasks: tasks})
 }

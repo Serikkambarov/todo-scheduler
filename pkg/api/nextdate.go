@@ -75,34 +75,39 @@ func isLeap(year int) bool {
 
 // nextDateHandler обрабатывает GET /api/nextdate
 func nextDateHandler(w http.ResponseWriter, r *http.Request) {
-	nowStr := r.FormValue("now")
-	dstart := r.FormValue("date")
-	repeat := r.FormValue("repeat")
+    // Проверяем метод
+    if r.Method != http.MethodGet {
+        http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
 
-	if dstart == "" || repeat == "" {
-		http.Error(w, "missing date or repeat parameter", http.StatusBadRequest)
-		return
-	}
+    nowStr := r.FormValue("now")
+    dstart := r.FormValue("date")
+    repeat := r.FormValue("repeat")
 
-	var now time.Time
-	var err error
-	if nowStr == "" {
-		now = time.Now()
-	} else {
-		now, err = time.Parse(dateFormat, nowStr)
-		if err != nil {
-			http.Error(w, "invalid now date", http.StatusBadRequest)
-			return
-		}
-	}
+    if dstart == "" || repeat == "" {
+        http.Error(w, "missing date or repeat parameter", http.StatusBadRequest)
+        return
+    }
 
-	next, err := NextDate(now, dstart, repeat)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+    var now time.Time
+    var err error
+    if nowStr == "" {
+        now = time.Now()
+    } else {
+        now, err = time.Parse(dateFormat, nowStr)
+        if err != nil {
+            http.Error(w, "invalid now date", http.StatusBadRequest)
+            return
+        }
+    }
 
-	w.Write([]byte(next))
+    next, err := NextDate(now, dstart, repeat)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    w.Write([]byte(next))
 }
-
 
